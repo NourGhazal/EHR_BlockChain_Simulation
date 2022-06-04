@@ -1,12 +1,24 @@
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
+import java.util.Scanner;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class EHR {
-    BlockChain bc = new BlockChain();
+
+	BlockChain bc = new BlockChain();
     PrivateKey prk;
     PublicKey puk;
     Cipher cipher;
@@ -38,7 +50,8 @@ public class EHR {
     }
 
     public void creatNewVisit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex,String prescreption) throws Exception {
-        Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
+       System.out.println("stfuuuuuuuuuuu");
+    	Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
         String visitContent = newVisit.toString();
         String plainText = visitContent;
         Cipher aesCipher = Cipher.getInstance("AES");
@@ -85,10 +98,145 @@ public class EHR {
     }
     public static void main(String[]args) throws Exception {
         EHR x = new EHR();
-        x.createNewPatient("nour",22,79,179,'m',"120/80",72,90,100);
-        x.createNewPatient("nour",22,79,179,'m',"120/80",72,90,100);
-        x.creatNewVisit("120/80",72,100,90,37.5f,"Was Sick","VERY ILL", 0,"Malox_30_3");
-        x.creatNewVisit("120/80",72,100,90,37.5f,"Was Sick","VERY ILL", 0,"Malox_30_3");
-        System.out.println(x.printVisits(0,"Iampatient0"));
+        Scanner sc=new Scanner(System.in);
+        System.out.println("--------------Hello---------------");
+        System.out.println("Enter y for (Yes) and n  for (no)");
+        
+        while(true){
+        System.out.println("Do u want to add patient? enter y/n");
+        String patient=sc.nextLine();
+        
+        while(!patient.equals("y")&&!patient.equals("n")) {
+        	System.out.println("Do u want to add patient? enter y/n");
+        	patient=sc.nextLine();
+        }
+        
+        if(patient.equals("y")) {
+        	 System.out.println("Please Enter the patient name");
+        	 String name=sc.nextLine();
+        	 
+        	 System.out.println("Please Enter the patient sex m(male)/f(female)");
+        	 String sex=sc.nextLine();
+        	 
+        	 System.out.println("Please Enter the patient age");
+        	 int age=Integer.parseInt(sc.nextLine());
+
+        	 System.out.println("Please Enter the patient blood pressure");
+        	 String bloodPressure=sc.nextLine();
+        	 
+        	 
+        	 
+        	 System.out.println("Please Enter the patient weight in kg");
+        	 int weight=Integer.parseInt(sc.nextLine());
+        	 
+        	 System.out.println("Please Enter the patient height in cm");
+        	 int height=Integer.parseInt(sc.nextLine());
+        	 
+        	 
+        	 
+        	 
+        	 System.out.println("Please Enter the patient heart pulse");
+        	 int pulse=Integer.parseInt(sc.nextLine());
+        	 
+        	 System.out.println("Please Enter the patient oxygen level ");
+        	 int oxygenLevel=Integer.parseInt(sc.nextLine());
+        	 
+        	 System.out.println("Please Enter the patient glucose level ");
+        	 int glucoseLevel=Integer.parseInt(sc.nextLine());
+        	 
+        	 System.out.println(sex);
+             x.createNewPatient(name,age,weight,height,sex.charAt(0), bloodPressure, pulse, oxygenLevel, glucoseLevel);
+             continue;
+        }
+        else {
+        	System.out.println("Do u want to add a vist for a patient? enter y/n");
+        	String visit=sc.nextLine();	
+            while(!visit.equals("y")&&!visit.equals("n")) {
+            	System.out.println("Do u want to add a vist for a patient? enter y/n");
+            	visit=sc.nextLine();
+            }
+            if(visit.equals("y")) {    
+             System.out.println("Please Enter the patient blood pressure ");
+           	 String bloodPressure=sc.nextLine();
+           	 
+           	 System.out.println("Please Enter the patient heart pulse ");
+           	 int pulse=Integer.parseInt(sc.nextLine());
+           	 
+           	 System.out.println("Please Enter the patient oxygen level ");
+           	 int oxygenLevel=Integer.parseInt(sc.nextLine());
+           	 
+           	 System.out.println("Please Enter the patient glucose level ");
+           	 int glucoseLevel=Integer.parseInt(sc.nextLine());
+           	 
+             System.out.println("Please Enter the patient body temprature ");
+          	 float temperature=Float.parseFloat(sc.nextLine());
+          	 
+          	 System.out.println("Please Enter the patient body reason For Visit ");
+         	 String reasonForVisit=sc.nextLine();
+         	 
+         	 System.out.println("Please Enter the patient diagnosis ");
+        	 String diagnosis=sc.nextLine();
+        	 
+        	 System.out.println("Please Enter the patient index ");
+        	 int patientIndex=Integer.parseInt(sc.nextLine());
+        	 
+        	 System.out.println("-----Now you are going to enter the patient Prescreption-----");
+        	 
+        	 System.out.println("Please Enter the prescreption");
+        	 String prescreption=sc.nextLine();
+        	
+             x.creatNewVisit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
+              continue;  
+            }
+            else {
+            	System.out.println("Do u want to get  the patient info? enter y/n"); 
+            	String patientInfo=sc.nextLine();	
+                while(!patientInfo.equals("y")&&!patientInfo.equals("n")) {
+                	System.out.println("Do u want to get  the patient info? enter y/n");
+                    patientInfo=sc.nextLine();
+                }
+                if(patientInfo.equals("y")) {
+                	System.out.println("Please Enter the password");             	                    	
+                	String password=sc.nextLine();
+                	
+                	System.out.println("Please Enter the patient index ");
+            	    int patientIndex=Integer.parseInt(sc.nextLine());
+            	    System.out.println(x.printPatient(patientIndex,password));
+                }
+                else {
+                	System.out.println("Do u want to get  a certain visit for a patient? enter y/n");
+                	
+                	String visitInfo=sc.nextLine();	
+                	  while(!visitInfo.equals("y")&&!visitInfo.equals("n")) {
+                		  System.out.println("Do u want to get  a certain visit for a patient? enter y/n");
+                		  visitInfo=sc.nextLine();
+                      }
+                    if(visitInfo.equals("y")) {
+                    System.out.println("Please Enter the password");             	                    	
+                   	    
+                	String password=sc.nextLine();
+                	
+                	System.out.println("Please Enter the patient index ");
+            	    int patientIndex=Integer.parseInt(sc.nextLine());
+            	     System.out.println(x.printVisits(patientIndex,password));
+            	     
+            	    // System.out.println(x.printVisits(patientIndex,password+patientIndex));
+            
+                }
+                    else {
+                    	System.out.println("Do you want to Exit the application y/n");
+                    	System.out.println("Plz note that if you choose no the questions will be asked again");
+                    	String out=sc.nextLine();
+                    	if(out.equals("y")) {
+                    		break;
+                    	}
+                    	continue;
+                    }
+                    }
+            }
+        	
+        }
+        }
+ 
     }
 }
