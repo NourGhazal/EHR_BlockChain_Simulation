@@ -19,19 +19,13 @@ import javax.crypto.SecretKey;
 public class EHR {
 
 	BlockChain bc = new BlockChain();
-    PrivateKey prk;
-    PublicKey puk;
-    Cipher cipher;
 
-    byte[] encryptedKey;
     SecretKey secKey;
     public EHR() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         generateKeys();
     }
 
-    public void getPatient(String password, int index){
 
-    }
     public void generateKeys() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
         generator.init(256); // The AES key size in number of bits
@@ -41,25 +35,22 @@ public class EHR {
     public void createNewPatient(String name, int age, int weight, int height, char sex, String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel) throws Exception {
         Patient newPatient = new Patient(name,age,weight,height,sex, bloodPressure, pulse, oxygenLevel, glucoseLevel);
         String patientContent = newPatient.toString();
-        String plainText = patientContent;
-        Cipher aesCipher = Cipher.getInstance("AES");
-        aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
-        byte[] byteCipherText = aesCipher.doFinal(plainText.getBytes());
-        String encryptedPatient = new String(Base64.getEncoder().encode(byteCipherText));
+        String encryptedPatient = encrypt(patientContent);
         bc.addBlockToChain(encryptedPatient,"p_"+newPatient.getIndex());
     }
 
     public void creatNewVisit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex,String prescreption) throws Exception {
-       System.out.println("stfuuuuuuuuuuu");
     	Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
         String visitContent = newVisit.toString();
-        String plainText = visitContent;
+        String encryptedVisit =encrypt(visitContent);
+        bc.addBlockToChain(encryptedVisit,"v_"+newVisit.getPatientIndex());
+
+    }
+    public String encrypt(String plainText) throws Exception {
         Cipher aesCipher = Cipher.getInstance("AES");
         aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
         byte[] byteCipherText = aesCipher.doFinal(plainText.getBytes());
-        String encryptedPatient = new String(Base64.getEncoder().encode(byteCipherText));
-        bc.addBlockToChain(encryptedPatient,"v_"+newVisit.getPatientIndex());
-
+        return new String(Base64.getEncoder().encode(byteCipherText));
     }
     public String printPatient(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
         if(password.equals("Iamadoctor") || password.equals("Iampatient"+index)){
