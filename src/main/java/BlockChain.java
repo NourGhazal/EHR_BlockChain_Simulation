@@ -10,13 +10,16 @@ private boolean checkBlockChainValidity(){
         if(!(blocks.get(i).getBlockHash().equals(blocks.get(i+1).getPreviousBlockHash()))){
             return false;
         }
+        if(!(blocks.get(i).getBlockHash().equals(Block.createHash(blocks.get(i).getPreviousBlockHash(),blocks.get(i).getBlockContent())))){
+            return false;
+        }
     }
     return true;
 }
 public void addBlockToChain(String blockContent,String code) throws Exception {
     String previousBlockHash = blocks.size()>0? blocks.get(blocks.size()-1).getBlockHash() : null;
     Block newBlock = new Block(previousBlockHash,blockContent);
-    if(!checkBlockChainValidity() || (accessChain.containsKey(code) && code.split("_").equals("p"))){
+    if(!checkBlockChainValidity() || (accessChain.containsKey(code) && code.split("_")[0].equals("p"))){
         throw new Exception("Block chain Error");
     }
     ArrayList<String> x = new ArrayList<String>();
