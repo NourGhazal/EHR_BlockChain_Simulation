@@ -1,3 +1,11 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 public class Visit {
     private static int count;
     private int index;
@@ -9,18 +17,12 @@ public class Visit {
     private String reasonForVisit;
     private String diagnosis;
 
-    public String getPrescription() {
-        return prescription;
-    }
-
-    public void setPrescription(String prescription) {
-        this.prescription = prescription;
-    }
-
+    private String doctorSignture;
     private String  prescription;
     private int patientIndex;
+private int doctorIndex;
 
-    public Visit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex,String prescription) {
+    public Visit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex, String prescription, String doctorSignture,int doctorIndex) {
         this.bloodPressure = bloodPressure;
         this.pulse = pulse;
         this.oxygenLevel = oxygenLevel;
@@ -30,10 +32,24 @@ public class Visit {
         this.diagnosis = diagnosis;
         this.patientIndex = patientIndex;
         this.prescription = prescription;
+        this.doctorSignture = doctorSignture;
+        this.doctorIndex = doctorIndex;
         index=count;
         count++;
     }
+    public int getIndex() {
+        return index;
+    }
+    public String getPrescription() {
+        return prescription;
+    }
 
+    public void setPrescription(String prescription) {
+        this.prescription = prescription;
+    }
+    public  int getDoctorIndex() {
+        return doctorIndex;
+    }
     public String getBloodPressure() {
         return bloodPressure;
     }
@@ -93,11 +109,13 @@ public class Visit {
     public int getPatientIndex() {
         return patientIndex;
     }
-
+    public String getDoctorSignture() {
+        return doctorSignture;
+    }
     public void setPatientIndex(int patientIndex) {
         this.patientIndex = patientIndex;
     }
-    public String toString(){
+    public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("Patient number: ");
         b.append(patientIndex);
@@ -127,4 +145,6 @@ public class Visit {
         b.append(prescription);
         return b.toString();
     }
+
+
 }

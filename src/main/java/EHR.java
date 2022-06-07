@@ -1,13 +1,6 @@
 import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Scanner;
+import java.security.*;
+import java.util.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -19,10 +12,14 @@ import javax.crypto.SecretKey;
 public class EHR {
 
 	BlockChain bc = new BlockChain();
-
+    HashMap<String,Doctor> Doctors = new HashMap<String,Doctor>();
+    HashMap<String, ArrayList<Visit>> Visits = new HashMap<String,  ArrayList<Visit>>();
+    HashMap<String, Patient> Patients = new HashMap<String, Patient>();
     SecretKey secKey;
     public EHR() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         generateKeys();
+        Doctor d1 = new Doctor("Dr. Smith", 45);
+        Doctors.put(d1.getIndex()+"", d1);
     }
 
 
@@ -37,13 +34,28 @@ public class EHR {
         String patientContent = newPatient.toString();
         String encryptedPatient = encrypt(patientContent);
         bc.addBlockToChain(encryptedPatient,"p_"+newPatient.getIndex());
+        Patients.put(newPatient.getIndex()+"", newPatient);
     }
 
-    public void creatNewVisit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex,String prescreption) throws Exception {
-    	Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
+    public void createNewVisit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex, String prescreption, String password) throws Exception {
+    	if(!password.split("_")[0].equals("Iamadoctor")) {
+            System.out.println("You are not authorized to create a new visit");
+            return;
+        }
+        String doctorIndex = password.split("_")[1];
+        String signture = this.Doctors.get(doctorIndex).sign("This is doctor "+doctorIndex);
+        Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption,signture,Integer.parseInt(doctorIndex));
         String visitContent = newVisit.toString();
         String encryptedVisit =encrypt(visitContent);
         bc.addBlockToChain(encryptedVisit,"v_"+newVisit.getPatientIndex());
+        ArrayList<Visit> x = new ArrayList<Visit>();
+        x.add(newVisit);
+        if(Visits.containsKey(patientIndex+"")){
+            Visits.get(patientIndex+"").add(newVisit);
+        }
+        else {
+            Visits.put(patientIndex+"",x);
+        }
 
     }
     public String encrypt(String plainText) throws Exception {
@@ -65,8 +77,21 @@ public class EHR {
             return "You are not authorized to view this patient";
         }
     }
-    public String printVisits(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
-        if(password.equals("Iamadoctor") || password.equals("Iampatient"+index)){
+    public String printVisits(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException, SignatureException {
+        ArrayList<Visit> x = Visits.get(index+"");
+        if(x==null){
+            return "No visits found";
+        }
+        for(int i=0;i<x.size();i++){
+            Doctor d = Doctors.get(x.get(i).getDoctorIndex()+"");
+            Signature sig = d.getSignature();
+            sig.initVerify(d.getPublicKey());
+            sig.update(("This is doctor "+x.get(i).getDoctorIndex()).getBytes());
+            if(!sig.verify(x.get(i).getDoctorSignture().getBytes())){
+                return "The signature of the visit is not valid";
+            }
+        }
+        if(password.equals("Iamadoctor")  || password.equals("Iampatient"+index) ){
            StringBuilder b = new StringBuilder();
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.DECRYPT_MODE, secKey);
@@ -92,8 +117,23 @@ public class EHR {
         Scanner sc=new Scanner(System.in);
         System.out.println("--------------Hello---------------");
         System.out.println("Enter y for (Yes) and n  for (no)");
-        
+
         while(true){
+        System.out.println("Do u want to add a Doctor? enter y/n");
+        String doctor=sc.nextLine();
+        while(!doctor.equals("y")&&!doctor.equals("n")) {
+            System.out.println("Do u want to add patient? enter y/n");
+            doctor=sc.nextLine();
+        }
+        if(doctor.equals("y")) {
+            System.out.println("Enter your name");
+            String name = sc.nextLine();
+            System.out.println("Enter your age");
+            int age = sc.nextInt();
+            Doctor d1 = new Doctor(name, age);
+            x.Doctors.put(d1.getIndex()+"", d1);
+        }
+        else{
         System.out.println("Do u want to add patient? enter y/n");
         String patient=sc.nextLine();
         
@@ -146,7 +186,9 @@ public class EHR {
             	System.out.println("Do u want to add a vist for a patient? enter y/n");
             	visit=sc.nextLine();
             }
-            if(visit.equals("y")) {    
+            if(visit.equals("y")) {
+             System.out.println("Please Enter Your Password");
+             String doctorPassword=sc.nextLine();
              System.out.println("Please Enter the patient blood pressure ");
            	 String bloodPressure=sc.nextLine();
            	 
@@ -176,7 +218,7 @@ public class EHR {
         	 System.out.println("Please Enter the prescreption");
         	 String prescreption=sc.nextLine();
         	
-             x.creatNewVisit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption);
+             x.createNewVisit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption,doctorPassword);
               continue;  
             }
             else {
@@ -223,6 +265,7 @@ public class EHR {
                     	}
                     	continue;
                     }
+                }
                     }
             }
         	
