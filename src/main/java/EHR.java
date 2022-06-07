@@ -91,7 +91,7 @@ public class EHR {
                 return "The signature of the visit is not valid";
             }
         }
-        if(password.equals("Iamadoctor")  || password.equals("Iampatient"+index) ){
+        if(password.split("_")[0].equals("Iamadoctor")  || password.equals("Iampatient"+index) ){
            StringBuilder b = new StringBuilder();
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.DECRYPT_MODE, secKey);
