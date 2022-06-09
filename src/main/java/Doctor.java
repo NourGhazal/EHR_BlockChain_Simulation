@@ -4,10 +4,10 @@ public class Doctor {
     private String name;
     private int index;
     private static int counter = 0;
-    private  int age;
-    private PrivateKey prk;
-    private PublicKey puk;
-    private Signature sig = Signature.getInstance("SHA256withDSA");;
+    private int age;
+    private final PrivateKey prk;
+    private final PublicKey puk;
+    private final Signature sig = Signature.getInstance("SHA256withDSA");;
     //construct doctor
     public Doctor(String name, int age) throws NoSuchAlgorithmException {
         this.name = name;
