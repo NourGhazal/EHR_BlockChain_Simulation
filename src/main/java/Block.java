@@ -1,60 +1,54 @@
 public class Block {
     private static int counter =0;
 
+    private final String previousBlockHash;
+    private final String blockContent;
+    private final long timeStamp;
 
+    private String hash;
+    private int nonce;
 
-    private String previousBlockHash;
-    private String blockHash;
-    private int tuningParameter;
-
-    public String getBlockContent() {
-        return blockContent;
-    }
-
-    private String blockContent;
-
-    public Block(String previousBlockHash, String blockContent) {
-        if(counter>0){
-            this.previousBlockHash = previousBlockHash;
-        }
-        else {
-            this.previousBlockHash = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        }
+    public Block(String previousBlockHash, String blockContent, long timeStamp) {
         this.blockContent = blockContent;
-        this.tuningParameter = blockContent.length()>70?blockContent.length():260;
-        int x = 0;
-        for (char c : blockContent.toCharArray()){
-            x += c;
-        }
-        x*=tuningParameter;
-        StringBuilder b = new StringBuilder();
-        for (char c : this.previousBlockHash.toCharArray()){
-            b.append((c+x)+"");
-        }
-        this.blockHash = b.toString();
+        this.previousBlockHash = previousBlockHash;
+        this.timeStamp = timeStamp;
+        this.hash = calculateHash(this);
         counter++;
     }
-    public static String createHash(String previousBlockHash, String blockContent){
-       if(previousBlockHash==null){
-           previousBlockHash = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-       }
-//        this.blockContent = blockContent;
-        int tuningParameter = blockContent.length()>70?blockContent.length():260;
-        int x = 0;
-        for (char c : blockContent.toCharArray()){
-            x += c;
+    public static String calculateHash(Block block){
+        String dataToHash = block.previousBlockHash + Long.toString(block.timeStamp)
+                + Integer.toString(block.nonce) + block.blockContent;
+        return Hash.sha256(dataToHash);
+    }
+
+    public String mineBlock(int prefix) {
+        String prefixString = new String(new char[prefix]).replace('\0', '0');
+        while (!hash.substring(0, prefix)
+                .equals(prefixString)) {
+            nonce++;
+            hash = calculateHash(this);
         }
-        x*=tuningParameter;
-        StringBuilder b = new StringBuilder();
-        for (char c : previousBlockHash.toCharArray()){
-            b.append((c+x)+"");
-        }
-         return b.toString();
+        return hash;
     }
     public String getPreviousBlockHash() {
         return previousBlockHash;
     }
-    public String getBlockHash() {
-        return blockHash;
+    public String getBlockContent() {
+        return blockContent;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Block{" +
+                "previousBlockHash='" + previousBlockHash + '\'' +
+                ", blockContent='" + blockContent + '\'' +
+                ", timeStamp=" + timeStamp +
+                ", hash='" + hash + '\'' +
+                ", nonce=" + nonce +
+                '}';
     }
 }
