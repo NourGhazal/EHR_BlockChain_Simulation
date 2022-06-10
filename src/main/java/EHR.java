@@ -8,6 +8,10 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.util.Arrays;
 
 public class EHR {
 
@@ -77,6 +81,13 @@ public class EHR {
             return "You are not authorized to view this patient";
         }
     }
+    public boolean verifySignture(String message,PublicKey publicKey, String signature) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] messageHash = Hash.sha256Byte(message);
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        byte[] decryptedMessageHash = cipher.doFinal(Hash.decodeHexString(signature));
+        return Arrays.equals(messageHash, decryptedMessageHash);
+    }
     public String printVisits(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException, SignatureException {
         ArrayList<Visit> x = Visits.get(index+"");
         if(x==null){
@@ -84,10 +95,10 @@ public class EHR {
         }
         for(int i=0;i<x.size();i++){
             Doctor d = Doctors.get(x.get(i).getDoctorIndex()+"");
-            Signature sig = d.getSignature();
-            sig.initVerify(d.getPublicKey());
-            sig.update(("This is doctor "+x.get(i).getDoctorIndex()).getBytes());
-            if(!sig.verify(x.get(i).getDoctorSignture().getBytes())){
+            String message =  "This is doctor "+x.get(i).getDoctorIndex();
+            String signature = x.get(i).getDoctorSignture();
+            PublicKey puk = d.getPublicKey();
+            if(!verifySignture(message,puk,signature)){
                 return "The signature of the visit is not valid";
             }
         }
@@ -122,7 +133,6 @@ public class EHR {
         System.out.println("Do u want to add a Doctor? enter y/n");
         String doctor=sc.nextLine();
         while(!doctor.equals("y")&&!doctor.equals("n")) {
-            System.out.println("Do u want to add patient? enter y/n");
             doctor=sc.nextLine();
         }
         if(doctor.equals("y")) {

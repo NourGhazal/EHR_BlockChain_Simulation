@@ -19,8 +19,11 @@ public class BlockChain {
         for(int i=1; i < blocks.size(); i++){
             Block currentBlock = blocks.get(i);
             String previousBlockHash = Block.calculateHash(previousBlock);
-            if(!previousBlockHash.equals(currentBlock.getPreviousBlockHash()))
+            if(!previousBlockHash.equals(currentBlock.getPreviousBlockHash())){
                 return false;
+            }
+            previousBlock = currentBlock;
+
         }
         return true;
     }
