@@ -1,3 +1,7 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.security.*;
 
 public class Doctor {
@@ -7,7 +11,7 @@ public class Doctor {
     private int age;
     private final PrivateKey prk;
     private final PublicKey puk;
-    private final Signature sig = Signature.getInstance("SHA256withDSA");;
+    private final Signature sig = Signature.getInstance("SHA256withRSA");;
     //construct doctor
     public Doctor(String name, int age) throws NoSuchAlgorithmException {
         this.name = name;
@@ -15,7 +19,7 @@ public class Doctor {
         index=counter;
         counter++;
         //create RSA public and private keys
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("DSA");
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         KeyPair pair = generator.generateKeyPair();
         prk = pair.getPrivate();
@@ -33,11 +37,12 @@ public class Doctor {
     public int getIndex(){
         return index;
     }
-    public String sign(String message) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        sig.initSign(prk);
-        sig.update(message.getBytes());
-        byte[] signature = sig.sign();
-        return new String(signature);
+    public String sign(String message) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, prk);
+        byte[] messageHash = Hash.sha256Byte(message);
+        String signature = Hash.bytesToHex(cipher.doFinal(messageHash));
+        return signature;
     }
     public Signature getSignature(){
         return sig;

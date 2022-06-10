@@ -88,7 +88,7 @@ public class EHR {
         byte[] decryptedMessageHash = cipher.doFinal(Hash.decodeHexString(signature));
         return Arrays.equals(messageHash, decryptedMessageHash);
     }
-    public String printVisits(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException, SignatureException {
+    public String printVisits(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
         ArrayList<Visit> x = Visits.get(index+"");
         if(x==null){
             return "No visits found";
