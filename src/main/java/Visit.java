@@ -143,6 +143,9 @@ private int doctorIndex;
         b.append('\n');
         b.append("prescription: ");
         b.append(prescription);
+        b.append('\n');
+        b.append("Signture: ");
+        b.append(doctorSignture);
         return b.toString();
     }
 
