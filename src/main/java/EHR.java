@@ -69,7 +69,7 @@ public class EHR {
         return new String(Base64.getEncoder().encode(byteCipherText));
     }
     public String printPatient(int index,String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
-        if(password.equals("Iamadoctor") || password.equals("Iampatient"+index)){
+        if(password.split("_")[0].equals("Iamadoctor") || password.equals("Iampatient"+index)){
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.DECRYPT_MODE, secKey);
             Block patientBlock = bc.retrievePatientBlock(index);

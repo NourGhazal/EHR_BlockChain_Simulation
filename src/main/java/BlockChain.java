@@ -11,6 +11,7 @@ public class BlockChain {
     static {
         Block genesisBlock = new Block("0" ,
                 "The is the Genesis Block.", new Date().getTime());
+        genesisBlock.mineBlock(prefix);
         blocks.add(genesisBlock);
     }
 
@@ -29,8 +30,8 @@ public class BlockChain {
     }
     public void addBlockToChain(String blockContent,String code) throws Exception {
         Block lastBlock = blocks.get(blocks.size()-1);
-        lastBlock.mineBlock(prefix);
         Block newBlock = new Block(lastBlock.getHash(), blockContent, new Date().getTime());
+        newBlock.mineBlock(prefix);
         if(!checkBlockChainValidity() || (accessChain.containsKey(code) && code.split("_")[0].equals("p"))){
             throw new Exception("Block chain Error");
         }
@@ -39,13 +40,16 @@ public class BlockChain {
           x = accessChain.get(code)!=null?accessChain.get(code): x;
         }
         x.add(newBlock.getHash());
+        System.out.println(x);
         accessChain.put(code,x);
         blocks.add(newBlock);
+        System.out.println(blocks);
     }
     public Block retrievePatientBlock(int index){
         String hash = accessChain.get("p_"+index).get(0);
         Block retrievedBlock = null;
         for (Block block : blocks){
+
             if(block.getHash().equals(hash)){
                 retrievedBlock = block;
                 break;
