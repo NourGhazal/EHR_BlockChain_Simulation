@@ -1,11 +1,3 @@
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-
 public class Visit {
     private static int count;
     private int index;
@@ -17,12 +9,11 @@ public class Visit {
     private String reasonForVisit;
     private String diagnosis;
 
-    private String doctorSignture;
     private String  prescription;
     private int patientIndex;
-private int doctorIndex;
+    private int doctorIndex;
 
-    public Visit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex, String prescription, String doctorSignture,int doctorIndex) {
+    public Visit(String bloodPressure, int pulse, int oxygenLevel, int glucoseLevel, float temperature, String reasonForVisit, String diagnosis, int patientIndex, String prescription, int doctorIndex) {
         this.bloodPressure = bloodPressure;
         this.pulse = pulse;
         this.oxygenLevel = oxygenLevel;
@@ -32,7 +23,6 @@ private int doctorIndex;
         this.diagnosis = diagnosis;
         this.patientIndex = patientIndex;
         this.prescription = prescription;
-        this.doctorSignture = doctorSignture;
         this.doctorIndex = doctorIndex;
         index=count;
         count++;
@@ -109,9 +99,7 @@ private int doctorIndex;
     public int getPatientIndex() {
         return patientIndex;
     }
-    public String getDoctorSignture() {
-        return doctorSignture;
-    }
+
     public void setPatientIndex(int patientIndex) {
         this.patientIndex = patientIndex;
     }
@@ -143,9 +131,6 @@ private int doctorIndex;
         b.append('\n');
         b.append("prescription: ");
         b.append(prescription);
-        b.append('\n');
-        b.append("Signture: ");
-        b.append(doctorSignture);
         return b.toString();
     }
 

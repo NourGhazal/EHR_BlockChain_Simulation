@@ -1,5 +1,4 @@
 import java.io.UnsupportedEncodingException;
-import java.security.*;
 import java.util.*;
 
 import javax.crypto.BadPaddingException;
@@ -47,10 +46,11 @@ public class EHR {
             return;
         }
         String doctorIndex = password.split("_")[1];
-        String signture = this.Doctors.get(doctorIndex).sign("This is doctor "+doctorIndex);
-        Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption,signture,Integer.parseInt(doctorIndex));
+        Visit newVisit = new Visit(bloodPressure,pulse,oxygenLevel,glucoseLevel,temperature,reasonForVisit,diagnosis,patientIndex,prescreption, Integer.parseInt(doctorIndex));
         String visitContent = newVisit.toString();
-        String encryptedVisit =encrypt(visitContent);
+        String signature = this.Doctors.get(doctorIndex).sign(visitContent);
+        String data = String.format("%s#%s#%s", visitContent, signature, doctorIndex);
+        String encryptedVisit = encrypt(data);
         bc.addBlockToChain(encryptedVisit,"v_"+newVisit.getPatientIndex());
         ArrayList<Visit> x = new ArrayList<Visit>();
         x.add(newVisit);
@@ -81,8 +81,8 @@ public class EHR {
             return "You are not authorized to view this patient";
         }
     }
-    public boolean verifySignture(String message,PublicKey publicKey, String signature) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        byte[] messageHash = Hash.sha256Byte(message);
+    public boolean verifySignature(String data, PublicKey publicKey, String signature) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] messageHash = Hash.sha256Byte(data);
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, publicKey);
         byte[] decryptedMessageHash = cipher.doFinal(Hash.decodeHexString(signature));
@@ -93,26 +93,29 @@ public class EHR {
         if(x==null){
             return "No visits found";
         }
-        for(int i=0;i<x.size();i++){
-            Doctor d = Doctors.get(x.get(i).getDoctorIndex()+"");
-            String message =  "This is doctor "+x.get(i).getDoctorIndex();
-            String signature = x.get(i).getDoctorSignture();
-            PublicKey puk = d.getPublicKey();
-            if(!verifySignture(message,puk,signature)){
-                return "The signature of the visit is not valid";
-            }
-        }
+
         if(password.split("_")[0].equals("Iamadoctor")  || password.equals("Iampatient"+index) ){
            StringBuilder b = new StringBuilder();
             Cipher aesCipher = Cipher.getInstance("AES");
             aesCipher.init(Cipher.DECRYPT_MODE, secKey);
             ArrayList<Block> visitBlock = bc.retrieveAllPatientVisits(index);
+
             for(int i=0;i<visitBlock.size();i++){
                 Block block =  visitBlock.get(i);
                 byte[] base64decodedTokenArr = Base64.getDecoder().decode(block.getBlockContent().getBytes());
                 byte[] bytePlainText = aesCipher.doFinal(base64decodedTokenArr);
-                b.append(new String(bytePlainText,"UTF8"));
-                b.append('\n');
+                String[] decryptedData = new String(bytePlainText,"UTF8").split("#");
+                String visitData = decryptedData[0];
+                String signature = decryptedData[1];
+                String doctorIndex = decryptedData[2];
+                PublicKey publicKey = Doctors.get(doctorIndex).getPublicKey();
+
+                if(!verifySignature(visitData, publicKey, signature)){
+                    b.append("The signature of the visit is not valid.\n");
+                }else {
+                    b.append(visitData);
+                    b.append('\n');
+                }
                 b.append("___________________________________________________________");
                 b.append('\n');
             }
