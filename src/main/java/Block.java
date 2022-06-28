@@ -1,6 +1,4 @@
 public class Block {
-    private static int counter =0;
-
     private final String previousBlockHash;
     private final String blockContent;
     private final long timeStamp;
@@ -13,7 +11,6 @@ public class Block {
         this.previousBlockHash = previousBlockHash;
         this.timeStamp = timeStamp;
         this.hash = calculateHash(this);
-        counter++;
     }
     public static String calculateHash(Block block){
         String dataToHash = block.previousBlockHash + Long.toString(block.timeStamp)

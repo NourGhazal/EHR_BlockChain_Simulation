@@ -139,12 +139,19 @@ public class EHR {
             doctor=sc.nextLine();
         }
         if(doctor.equals("y")) {
-            System.out.println("Enter your name");
-            String name = sc.nextLine();
-            System.out.println("Enter your age");
-            int age = sc.nextInt();
-            Doctor d1 = new Doctor(name, age);
-            x.Doctors.put(d1.getIndex()+"", d1);
+            System.out.println("Please Enter your Password");
+            String password = sc.nextLine();
+            if(password.equals("Iamanadmin")){
+                System.out.println("Enter the Doctor's name");
+                String name = sc.nextLine();
+                System.out.println("Enter the Doctor'e age");
+                int age = sc.nextInt();
+                Doctor d1 = new Doctor(name, age);
+                x.Doctors.put(d1.getIndex()+"", d1);
+            }
+        else{
+            continue;
+        }  
         }
         else{
         System.out.println("Do u want to add patient? enter y/n");
@@ -274,6 +281,7 @@ public class EHR {
                     	System.out.println("Plz note that if you choose no the questions will be asked again");
                     	String out=sc.nextLine();
                     	if(out.equals("y")) {
+                            sc.close();
                     		break;
                     	}
                     	continue;
